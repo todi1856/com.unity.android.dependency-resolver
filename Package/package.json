@@ -1,9 +1,9 @@
 {
     "name": "com.unity.android.dependency-resolver",
     "displayName": "Dependency Resovler",
-    "version": "1.4.1",
+    "version": "0.1.0",
     "unity": "2023.3",
-    "description": "TODO"
+    "description": "TODO",
     "keywords": ["Mobile", "Android", "Dependency", "Resolver"],
     "dependencies": {
     }
