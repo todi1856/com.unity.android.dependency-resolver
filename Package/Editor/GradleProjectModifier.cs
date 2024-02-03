@@ -1,4 +1,3 @@
-/*
 using System;
 using System.Linq;
 using Unity.Android.Gradle;
@@ -12,27 +11,35 @@ namespace Unity.Android.DependencyResolver
         [Serializable]
         public class Data
         {
+            public bool Enabled;
             public string[] Repositories;
             public string[] Dependencies;
         }
 
         public override AndroidProjectFilesModifierContext Setup()
         {
-            var collector = new Collector();
-            var info = collector.CollectDependencies();
-
-            var context = new AndroidProjectFilesModifierContext();
-            context.SetData(nameof(Data), new Data()
+            var data = new Data()
             {
-                Repositories = info.Repositories.Select(r => r.Value).ToArray(),
-                Dependencies = info.Dependencies.Select(d => d.Value).ToArray()
-            });
+                Enabled = ResolverSettings.Enabled
+            };
+
+            if (data.Enabled)
+            {
+                var collector = new Collector();
+                var info = collector.CollectDependencies();
+                data.Repositories = info.Repositories.Select(r => r.Value).ToArray();
+                data.Dependencies = info.Dependencies.Select(d => d.Value).ToArray();
+            }
+            var context = new AndroidProjectFilesModifierContext();
+            context.SetData(nameof(Data), data);
             return context;
         }
 
         public override void OnModifyAndroidProjectFiles(AndroidProjectFiles projectFiles)
         {
             var data = projectFiles.GetData<Data>(nameof(Data));
+            if (!data.Enabled)
+                return;
             foreach (var dependency in data.Dependencies)
                 projectFiles.UnityLibraryBuildGradle.Dependencies.AddDependencyImplementationByName(dependency);
 
@@ -49,5 +56,4 @@ namespace Unity.Android.DependencyResolver
         }
     }
 }
-*/
 // TODO: Add warning if specific templates are enabled

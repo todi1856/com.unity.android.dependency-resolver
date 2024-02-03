@@ -7,11 +7,11 @@ namespace Unity.Android.DependencyResolver
     public class Diagnostics : EditorWindow
     {
         private ResolverResult m_Result;
-        [MenuItem("Examples/My Editor Window")]
+        [MenuItem("Window/Android/Dependency Resolver")]
         public static void ShowExample()
         {
             var wnd = GetWindow<Diagnostics>();
-            wnd.titleContent = new GUIContent("MyEditorWindow");
+            wnd.titleContent = new GUIContent("Dependency Resolver");
         }
         /*
         public void CreateGUI()
@@ -44,6 +44,9 @@ namespace Unity.Android.DependencyResolver
 
                 m_Result = c.CollectDependencies();
             }
+
+
+            ResolverSettings.Enabled = GUILayout.Toggle(ResolverSettings.Enabled, "Enabled:");
 
             if (m_Result == null)
                 return;
