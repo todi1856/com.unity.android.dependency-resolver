@@ -1,0 +1,8 @@
+artifacts/**
+build/**
+.build_script/**
+.DS_Store
+.npmrc
+.npmignore
+QAReport.md
+QAReport.md.meta
