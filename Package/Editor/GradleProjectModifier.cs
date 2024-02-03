@@ -1,3 +1,4 @@
+/*
 using System;
 using System.Linq;
 using Unity.Android.Gradle;
@@ -38,9 +39,9 @@ namespace Unity.Android.DependencyResolver
             var gradleRepositories = projectFiles.GradleSettings.DependencyResolutionManagement.Repositories;
             foreach (var repository in data.Repositories)
             {
-                var repo = gradleRepositories.AddRepository(Repositories.Maven);
-                var child = new Element($"url \"{repository}\"");
-                repo.AddElement(child);
+                var block = new Block(Repositories.Maven);
+                gradleRepositories.AddElement(block);
+                block.AddElement(new Element($"url \"{repository}\""));
                 // TALK TO RYTIS
             }
             // TODO: mavenLocal ?
@@ -48,5 +49,5 @@ namespace Unity.Android.DependencyResolver
         }
     }
 }
-
+*/
 // TODO: Add warning if specific templates are enabled

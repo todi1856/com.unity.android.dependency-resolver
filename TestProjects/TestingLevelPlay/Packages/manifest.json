@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "local.shared": "file:../../LocalPackages/local.shared",
     "com.unity.android.dependency-resolver": "file:../../../Package",
     "com.unity.ide.visualstudio": "2.0.22",
     "com.unity.services.levelplay": "1.0.0",

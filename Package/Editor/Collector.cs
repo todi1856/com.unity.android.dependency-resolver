@@ -34,6 +34,7 @@ namespace Unity.Android.DependencyResolver
                             continue;
 
                         var dependency = result.AddDependency(dependencyValueAttr.Value);
+                        dependency.AddSourceLocation(path);
 
                         var repositories = package.Element("repositories");
                         if (repositories == null)
@@ -43,6 +44,7 @@ namespace Unity.Android.DependencyResolver
                         {
                             var addedRepository = result.AddRepository(repository.Value);
                             addedRepository.AddDependency(dependency);
+                            addedRepository.AddSourceLocation(path);
                         }
                     }
                 }
