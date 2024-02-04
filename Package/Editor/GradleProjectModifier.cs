@@ -10,6 +10,7 @@ namespace Unity.Android.DependencyResolver
     public class GradleProjectModifier : AndroidProjectFilesModifier
     {
         internal readonly string SrcAARExtension = ".srcaar";
+        
 
         [Serializable]
         public class Data
@@ -31,7 +32,7 @@ namespace Unity.Android.DependencyResolver
             {
                 var collector = new Collector();
                 var info = collector.CollectDependencies();
-                data.Repositories = info.Repositories.Select(r => r.Value).ToArray();
+                data.Repositories = info.Repositories.Select(r => r.ResolveRepositoryPath).ToArray();
                 data.Dependencies = info.Dependencies.Select(d => d.Value).ToArray();
 
                 foreach (var repo in info.Repositories)
@@ -42,7 +43,7 @@ namespace Unity.Android.DependencyResolver
                     var root = Application.dataPath;
                     foreach (var file in repo.EnumerateLocalFiles())
                     {
-                        var dst = Path.Combine("Local", file.Substring(root.Length + 1));
+                        var dst = Path.Combine(GradleRepository.LocalRepository, file.Substring(root.Length + 1));
 
                         // Replicate hack from Google External Dependency Manager
                         var extension = Path.GetExtension(file);

@@ -1,17 +1,39 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using UnityEditor;
 using UnityEngine;
 
 namespace Unity.Android.DependencyResolver
 {
     class GradleRepository
     {
+        internal static readonly string LocalRepository = "LocalRepository";
+
         HashSet<GradleDependency> m_Dependencies;
         HashSet<string> m_SourceLocations;
 
         public string Value { get; private set; }
+
+        public string ResolveRepositoryPath
+        {
+            get
+            {
+                if (IsLocal)
+                {
+                    var prefix = new[] { Constants.Assets, Constants.Packages };
+                    foreach (var p in prefix)
+                    {
+                        if (Value.StartsWith(p, System.StringComparison.InvariantCultureIgnoreCase))
+                        {
+                            var relativePath = Path.Combine(LocalRepository, Value.Substring(p.Length + 1)).Replace("\\", "/");
+                            return $"{Constants.UrlFile}{relativePath}";
+                        }
+                    }
+                    return Value;
+                }
+                return Value;
+            }
+        }
 
         public IReadOnlyCollection<GradleDependency> Dependencies => m_Dependencies;
 
