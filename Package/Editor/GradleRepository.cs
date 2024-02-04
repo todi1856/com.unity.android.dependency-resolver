@@ -1,4 +1,8 @@
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using UnityEditor;
+using UnityEngine;
 
 namespace Unity.Android.DependencyResolver
 {
@@ -10,6 +14,9 @@ namespace Unity.Android.DependencyResolver
         public string Value { get; private set; }
 
         public IReadOnlyCollection<GradleDependency> Dependencies => m_Dependencies;
+
+        public bool IsLocal => Value.StartsWith("Assets", System.StringComparison.InvariantCultureIgnoreCase) ||
+            Value.StartsWith("Packages", System.StringComparison.InvariantCultureIgnoreCase);
 
         public GradleRepository(string value)
         {
@@ -26,6 +33,25 @@ namespace Unity.Android.DependencyResolver
         public void AddSourceLocation(string path)
         {
             m_SourceLocations.Add(path);
+        }
+
+        public IEnumerable<string> EnumerateLocalFiles()
+        {
+            if (!IsLocal)
+                throw new System.Exception("Can only enumerate files from a local repository");
+
+            // TODO: files from packages
+            // TODO: Add check function if repository exists
+            var path = Path.GetFullPath(Path.Combine(Application.dataPath, "..", Value));
+            var files = Directory.GetFiles(path, "*.*", SearchOption.AllDirectories);
+            var ignoredExtesions = new []{ ".meta", ".xml" };
+            foreach (var file in files)
+            {
+                var extension = Path.GetExtension(file);
+                if (ignoredExtesions.Contains(extension))
+                    continue;
+                yield return file;
+            }
         }
     }
 }

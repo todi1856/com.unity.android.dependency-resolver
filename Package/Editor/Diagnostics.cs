@@ -53,7 +53,13 @@ namespace Unity.Android.DependencyResolver
             GUILayout.Label($"Dependencies [{m_Result.Dependencies.Count}] Repositories [{m_Result.Repositories.Count}]:");
             foreach (var repo in m_Result.Repositories)
             {
-                GUILayout.Label(repo.Value);
+                GUILayout.Label($"{repo.Value} Local: {repo.IsLocal}");
+                if (repo.IsLocal)
+                {
+                    foreach (var file in repo.EnumerateLocalFiles())
+                        GUILayout.Label($" - {file}");
+                }
+                GUILayout.Label("Dependencies:");
                 foreach (var dep in repo.Dependencies)
                     GUILayout.Label($" - {dep.Value}");
             }

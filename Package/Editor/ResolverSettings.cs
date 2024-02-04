@@ -4,9 +4,10 @@ using UnityEditor;
 
 namespace Unity.Android.DependencyResolver
 {
+    // TODO: Add Assets/Project Settings
     class ResolverSettings
     {
-        static readonly string Path = "UserSettings/ResolverSettings.json";
+        static readonly string Path = "ProjectSettings/ResolverSettings.json";
 
         [Serializable]
         class Data
