@@ -56,6 +56,10 @@ namespace Unity.Android.DependencyResolver
                         var dst = Path.Combine(Constants.LocalRepository, file.Substring(root.Length + 1));
 
                         // Replicate hack from Google External Dependency Manager
+                        // For legacy reasons, maven packages placed in Unity project have .aar files with .srcaar extension insted
+                        // So Unity would ignore those files (otherwise they would end up as plugins in gradle project)
+                        // When copying this packages from Unity project to gradle project
+                        // We need to restore .aar extension both for file and in .pom file
                         var extension = Path.GetExtension(file);
 
                         // Patch pom file
