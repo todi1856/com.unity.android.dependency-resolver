@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Unity.Android.Gradle;
@@ -10,14 +11,22 @@ namespace Unity.Android.DependencyResolver
     public class GradleProjectModifier : AndroidProjectFilesModifier
     {
         internal readonly string SrcAARExtension = ".srcaar";
-        
+        internal readonly string POMExtension = ".pom";
 
         [Serializable]
-        public class Data
+        class ModifiedFile
+        {
+            public string Path;
+            public string Contents;
+        }
+
+        [Serializable]
+        class Data
         {
             public bool Enabled;
             public string[] Repositories;
             public string[] Dependencies;
+            public ModifiedFile[] ModifiedFiles;
         }
 
         public override AndroidProjectFilesModifierContext Setup()
@@ -35,6 +44,7 @@ namespace Unity.Android.DependencyResolver
                 data.Repositories = info.Repositories.Select(r => r.ResolveRepositoryPath).ToArray();
                 data.Dependencies = info.Dependencies.Select(d => d.Value).ToArray();
 
+                var extraFiles = new List<ModifiedFile>();
                 foreach (var repo in info.Repositories)
                 {
                     if (!repo.IsLocal)
@@ -43,15 +53,32 @@ namespace Unity.Android.DependencyResolver
                     var root = Application.dataPath;
                     foreach (var file in repo.EnumerateLocalFiles())
                     {
-                        var dst = Path.Combine(GradleRepository.LocalRepository, file.Substring(root.Length + 1));
+                        var dst = Path.Combine(Constants.LocalRepository, file.Substring(root.Length + 1));
 
                         // Replicate hack from Google External Dependency Manager
                         var extension = Path.GetExtension(file);
+
+                        // Patch pom file
+                        if (extension.Equals(POMExtension))
+                        {
+                            var contents = File.ReadAllText(file);
+                            contents = contents.Replace("srcaar", "aar");
+                            extraFiles.Add(new ModifiedFile()
+                            {
+                                Path = dst,
+                                Contents = contents
+                            });
+                            context.Outputs.AddFileWithContents(dst);
+                            continue;
+                        }
+
                         if (extension.Equals(SrcAARExtension))
                             dst = dst.Substring(0, dst.Length - SrcAARExtension.Length) + ".aar";
                         context.AddFileToCopy(file, dst);
                     }
                 }
+
+                data.ModifiedFiles = extraFiles.ToArray();
             }
             
             context.SetData(nameof(Data), data);
@@ -75,6 +102,11 @@ namespace Unity.Android.DependencyResolver
                 // TALK TO RYTIS
             }
             // TODO: mavenLocal ?
+
+            foreach (var file in data.ModifiedFiles)
+            {
+                projectFiles.SetFileContents(file.Path, file.Contents);
+            }
 
         }
     }

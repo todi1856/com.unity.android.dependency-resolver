@@ -7,8 +7,6 @@ namespace Unity.Android.DependencyResolver
 {
     class GradleRepository
     {
-        internal static readonly string LocalRepository = "LocalRepository";
-
         HashSet<GradleDependency> m_Dependencies;
         HashSet<string> m_SourceLocations;
 
@@ -25,7 +23,7 @@ namespace Unity.Android.DependencyResolver
                     {
                         if (Value.StartsWith(p, System.StringComparison.InvariantCultureIgnoreCase))
                         {
-                            var relativePath = Path.Combine(LocalRepository, Value.Substring(p.Length + 1)).Replace("\\", "/");
+                            var relativePath = Path.Combine(Constants.LocalRepository, Value.Substring(p.Length + 1)).Replace("\\", "/");
                             return $"{Constants.UrlFile}{relativePath}";
                         }
                     }
