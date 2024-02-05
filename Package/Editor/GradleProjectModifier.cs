@@ -36,6 +36,16 @@ namespace Unity.Android.DependencyResolver
                 Enabled = ResolverSettings.Enabled
             };
 
+            if (data.Enabled)
+            {
+                var validationResult = Utilities.CheckIfTemplatesAreDisabled();
+                if (!string.IsNullOrEmpty(validationResult))
+                {
+                    data.Enabled = false;
+                    throw new Exception($"{validationResult}\nSee also 'Project Settings/{ResolverProjectSettingsProvider.SettingsRelativePath}'.\n");
+                }
+            }
+
             var context = new AndroidProjectFilesModifierContext();
             if (data.Enabled)
             {
@@ -72,6 +82,7 @@ namespace Unity.Android.DependencyResolver
                                 Path = dst,
                                 Contents = contents
                             });
+                            // TODO: why can't I pass contents here
                             context.Outputs.AddFileWithContents(dst);
                             continue;
                         }
