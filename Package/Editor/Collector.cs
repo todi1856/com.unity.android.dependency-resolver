@@ -14,7 +14,7 @@ namespace Unity.Android.DependencyResolver
         public ResolverResult CollectDependencies()
         {
             var paths =  AssetDatabase.GetAllAssetPaths()
-                .Where(p => Path.GetExtension(p).Equals(".xml", System.StringComparison.InvariantCultureIgnoreCase))
+                .Where(p => Path.GetExtension(p).Equals(Constants.XmlExtension, System.StringComparison.InvariantCultureIgnoreCase))
                 .ToArray();
 
             var result = new ResolverResult();

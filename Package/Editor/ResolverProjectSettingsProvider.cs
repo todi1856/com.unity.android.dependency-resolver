@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.IO;
 using System.Linq;
 using UnityEditor;
 using UnityEditorInternal;
@@ -15,20 +16,38 @@ namespace Unity.Android.DependencyResolver
 
     class ResolverProjectSettingsProvider : SettingsProvider
     {
+        class MyAllPostprocessor : AssetPostprocessor
+        {
+            static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets, string[] movedAssets, string[] movedFromAssetPaths, bool didDomainReload)
+            {
+                if (importedAssets == null)
+                    return;
+                foreach (var asset in importedAssets)
+                {
+                    // Only care about .xml files
+                    if (Path.GetExtension(asset) == Constants.XmlExtension)
+                    {
+                        m_AssetUpdated = DateTime.Now;
+                        break;
+                    }
+                }
+            }
+        }
+
         internal static readonly string SettingsRelativePath = "Android/Dependency Resolver";
         internal static readonly string SettingsPath = $"Project/{SettingsRelativePath}";
 
         private ResolverResult m_Result;
         private MultiColumnListView m_Dependencies;
         private MultiColumnListView m_Locations;
-        private VisualElement m_DiagnosticsContainer;
+        private static DateTime m_AssetUpdated;
+        private static DateTime m_DependenciesCollected;
 
         public ResolverProjectSettingsProvider(string path, SettingsScope scope)
             : base(path, scope)
         {
             activateHandler = CreateGUI;
         }
-
 
         private MultiColumnListView CreateDependencyView(Func<GradleDependency, int, string> getValue)
         {
@@ -138,7 +157,10 @@ namespace Unity.Android.DependencyResolver
             container.Add(m_Locations);
 
             if (ResolverSettings.Enabled)
+            {
+                m_AssetUpdated = DateTime.Now;
                 CollectDependencies();
+            }
 
             m_Dependencies.SetEnabled(ResolverSettings.Enabled);
             m_Locations.SetEnabled(ResolverSettings.Enabled);
@@ -154,6 +176,8 @@ namespace Unity.Android.DependencyResolver
         {
             m_Result = new Collector().CollectDependencies();
             UpdateData();
+
+            m_DependenciesCollected = DateTime.Now;
         }
       
         public void GUI()
@@ -186,6 +210,12 @@ namespace Unity.Android.DependencyResolver
 
             EditorGUILayout.Space();
             EditorGUI.EndDisabledGroup();
+
+            // Automatically collect dependencies if assets were updated
+            if (ResolverSettings.Enabled && m_AssetUpdated > m_DependenciesCollected)
+            {
+                CollectDependencies();
+            }
         }
         
         [SettingsProvider]

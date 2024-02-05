@@ -11,5 +11,6 @@ namespace Unity.Android.DependencyResolver
         internal const string Assets = "Assets";
         internal const string Packages = "Packages";
         internal const string UrlFile = "${rootProject.projectDir.path}/";
+        internal const string XmlExtension = ".xml";
     }
 }
