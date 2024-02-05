@@ -14,19 +14,18 @@ namespace Unity.Android.DependencyResolver
         internal readonly string POMExtension = ".pom";
 
         [Serializable]
-        class ModifiedFile
-        {
-            public string Path;
-            public string Contents;
-        }
-
-        [Serializable]
         class Data
         {
             public bool Enabled;
             public string[] Repositories;
             public string[] Dependencies;
-            public ModifiedFile[] ModifiedFiles;
+            public string[] PomFiles;
+        }
+
+        private static string CalculateDestinationPath(string sourcePath)
+        {
+            var root = Application.dataPath;
+            return Path.Combine(Constants.LocalRepository, sourcePath.Substring(root.Length + 1)); ;
         }
 
         public override AndroidProjectFilesModifierContext Setup()
@@ -54,16 +53,15 @@ namespace Unity.Android.DependencyResolver
                 data.Repositories = info.Repositories.Select(r => r.ResolveRepositoryPath).ToArray();
                 data.Dependencies = info.Dependencies.Select(d => d.Value).ToArray();
 
-                var extraFiles = new List<ModifiedFile>();
+                var pomFiles = new List<string>();
                 foreach (var repo in info.Repositories)
                 {
                     if (!repo.IsLocal)
                         continue;
 
-                    var root = Application.dataPath;
                     foreach (var file in repo.EnumerateLocalFiles())
                     {
-                        var dst = Path.Combine(Constants.LocalRepository, file.Substring(root.Length + 1));
+                        var dst = CalculateDestinationPath(file);
 
                         // Replicate hack from Google External Dependency Manager
                         // For legacy reasons, maven packages placed in Unity project have .aar files with .srcaar extension insted
@@ -72,28 +70,25 @@ namespace Unity.Android.DependencyResolver
                         // We need to restore .aar extension both for file and in .pom file
                         var extension = Path.GetExtension(file);
 
-                        // Patch pom file
                         if (extension.Equals(POMExtension))
                         {
-                            var contents = File.ReadAllText(file);
-                            contents = contents.Replace("srcaar", "aar");
-                            extraFiles.Add(new ModifiedFile()
-                            {
-                                Path = dst,
-                                Contents = contents
-                            });
-                            // TODO: why can't I pass contents here
-                            context.Outputs.AddFileWithContents(dst);
-                            continue;
+                            // .pom files require patching, do it in OnModifyAndroidProjectFiles, so it could be done in incremental way.
+                            pomFiles.Add(file);
+                            context.Outputs.AddFileWithContents(CalculateDestinationPath(file));
                         }
+                        else
+                        {
 
-                        if (extension.Equals(SrcAARExtension))
-                            dst = dst.Substring(0, dst.Length - SrcAARExtension.Length) + ".aar";
-                        context.AddFileToCopy(file, dst);
+                            if (extension.Equals(SrcAARExtension))
+                                dst = dst.Substring(0, dst.Length - SrcAARExtension.Length) + ".aar";
+                            context.AddFileToCopy(file, dst);
+                        }
                     }
                 }
 
-                data.ModifiedFiles = extraFiles.ToArray();
+                data.PomFiles = pomFiles.ToArray();
+                context.Dependencies.DependencyFiles = pomFiles.ToArray();
+                
             }
             
             context.SetData(nameof(Data), data);
@@ -118,12 +113,13 @@ namespace Unity.Android.DependencyResolver
             }
             // TODO: mavenLocal ?
 
-            foreach (var file in data.ModifiedFiles)
+            foreach (var file in data.PomFiles)
             {
-                projectFiles.SetFileContents(file.Path, file.Contents);
+                var contents = File.ReadAllText(file);
+                contents = contents.Replace("srcaar", "aar");
+                projectFiles.SetFileContents(CalculateDestinationPath(file), contents);
             }
 
         }
     }
 }
-// TODO: Add warning if specific templates are enabled
