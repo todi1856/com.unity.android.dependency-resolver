@@ -7,7 +7,6 @@ namespace Unity.Android.DependencyResolver
 {
     class GradleRepository
     {
-        HashSet<GradleDependency> m_Dependencies;
         HashSet<string> m_SourceLocations;
 
         public string Value { get; private set; }
@@ -33,21 +32,13 @@ namespace Unity.Android.DependencyResolver
             }
         }
 
-        public IReadOnlyCollection<GradleDependency> Dependencies => m_Dependencies;
-
         public bool IsLocal => Value.StartsWith("Assets", System.StringComparison.InvariantCultureIgnoreCase) ||
             Value.StartsWith("Packages", System.StringComparison.InvariantCultureIgnoreCase);
 
         public GradleRepository(string value)
         {
             Value = value;
-            m_Dependencies = new HashSet<GradleDependency>();
             m_SourceLocations = new HashSet<string>();
-        }
-
-        public void AddDependency(GradleDependency dependency)
-        {
-            m_Dependencies.Add(dependency);
         }
 
         public void AddSourceLocation(string path)

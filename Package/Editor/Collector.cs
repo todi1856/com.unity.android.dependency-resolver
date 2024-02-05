@@ -43,7 +43,10 @@ namespace Unity.Android.DependencyResolver
                         foreach (var repository in repositories.Elements("repository"))
                         {
                             var addedRepository = result.AddRepository(repository.Value);
-                            addedRepository.AddDependency(dependency);
+                            // Each dependency should originate from one repository.
+                            // Should we do something if same package originates from several repositories
+                            // At the very least throw a warning
+                            dependency.Repository = addedRepository;
                             addedRepository.AddSourceLocation(path);
                         }
                     }
