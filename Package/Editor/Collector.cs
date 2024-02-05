@@ -5,6 +5,7 @@ using UnityEditor;
 using System.Linq;
 using System.IO;
 using System.Xml.Linq;
+using UnityEditor.Android;
 
 namespace Unity.Android.DependencyResolver
 {
@@ -53,6 +54,12 @@ namespace Unity.Android.DependencyResolver
                 }
             }
 
+            var builtinDependencies = GradleDependencies.GetEngineGradleDependencies();
+            foreach (var builtinDependency in builtinDependencies)
+            {
+                var dependency = result.AddDependency(builtinDependency);
+                dependency.AddSourceLocation("Player Settings (Android)");
+            }
             return result;
         }
     }

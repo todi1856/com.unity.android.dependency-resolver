@@ -4,16 +4,16 @@ namespace Unity.Android.DependencyResolver
 {
     class ResolverResult
     {
-        private Dictionary<string, GradleRepository> m_Repositories;
-        private Dictionary<string, GradleDependency> m_Dependencies;
+        private SortedDictionary<string, GradleRepository> m_Repositories;
+        private SortedDictionary<string, GradleDependency> m_Dependencies;
 
         public IReadOnlyCollection<GradleRepository> Repositories => m_Repositories.Values;
         public IReadOnlyCollection<GradleDependency> Dependencies => m_Dependencies.Values;
 
         public ResolverResult()
         {
-            m_Repositories = new Dictionary<string, GradleRepository>();
-            m_Dependencies = new Dictionary<string, GradleDependency>();
+            m_Repositories = new SortedDictionary<string, GradleRepository>();
+            m_Dependencies = new SortedDictionary<string, GradleDependency>();
         }
 
         public GradleRepository AddRepository(string name)
