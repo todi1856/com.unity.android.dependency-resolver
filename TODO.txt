@@ -1,0 +1,7 @@
+* Add tests 
+  - Can read xml files from Assets
+  - Can read xml files from Packages
+  - Can read local repo from Assets
+  - Can read local repo from Packages
+  - Can update settings.gradle after removing repository
+  - Can update unityLibrary/build.gradle after removing dependency
