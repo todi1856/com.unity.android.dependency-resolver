@@ -5,3 +5,5 @@
   - Can read local repo from Packages
   - Can update settings.gradle after removing repository
   - Can update unityLibrary/build.gradle after removing dependency
+* Provide C# attribute instead of xml file for defining Gradle dependency/repository. For ex.,
+  [assembly:IncludeGradleDependency("com.mystuff.mystuff:1.0.0", "https://www.myrepo.com")]
