@@ -1,5 +1,8 @@
+using System;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Xml.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -29,9 +32,54 @@ namespace Unity.Android.DependencyResolver
             }
 
             if (errors.Length > 0)
-                return $"The following templates have to be disabled for dependency resolver to work correctly:\n{errors}";
+                return $"The following templates have to be disabled for the dependency resolver to work correctly:\n{errors}";
 
             return string.Empty;
+        }
+
+        internal static string CheckIfGoogleExternalDependencyManagerPresent()
+        {
+            var assembly = Assembly.Load("Google.JarResolver");
+            if (assembly == null)
+                return string.Empty;
+
+            var location = assembly.Location;
+            var root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
+            if (location.Contains(root))
+                location = location.Substring(root.Length + 1);
+            return $"Detected Google External Dependency Manager at\n'{location}'\nIt can conflict with Dependency Resolver, consider disabling or removing it.";
+        }
+
+        internal static void EDM4UDeleteResolveLibraries()
+        {
+            var menuItem = "Assets/External Dependency Manager/Android Resolver/Delete Resolved Libraries";
+            EditorApplication.ExecuteMenuItem(menuItem);
+            Debug.Log($"Executing '{menuItem}'");
+        }
+
+        internal static void EDM4UDisableAutoResolving()
+        {
+            var settingsPath = Path.Combine("ProjectSettings/GvhProjectSettings.xml");
+            Debug.Log($"Patching '{settingsPath}'");
+            if (!File.Exists(settingsPath))
+                return;
+            try
+            {
+                var settings = XDocument.Load(settingsPath);
+                var root = settings.Root;
+                foreach (var s in root.Elements("projectSetting"))
+                {
+                    var name = s.Attribute("name").Value;
+                    if (name == "GooglePlayServices.AutoResolutionDisabledWarning" ||
+                        name == "GooglePlayServices.AutoResolveOnBuild")
+                        s.Attribute("value").Value = "False";
+                }
+                settings.Save(settingsPath);
+            }
+            catch (Exception ex)
+            {
+                Debug.LogWarning(ex);
+            }
         }
     }
 }

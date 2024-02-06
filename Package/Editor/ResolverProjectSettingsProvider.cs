@@ -1,10 +1,7 @@
 using System;
-using System.Collections;
 using System.IO;
 using System.Linq;
-using Unity.Android.Gradle;
 using UnityEditor;
-using UnityEditorInternal;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -177,6 +174,33 @@ namespace Unity.Android.DependencyResolver
             rootVisualElement.Add(container);
 
             container.Add(new Label("<size=20px><b>Dependency Resolver</b><br>") { enableRichText = true });
+
+            var validationResult = Utilities.CheckIfTemplatesAreDisabled();
+            if (!string.IsNullOrEmpty(validationResult))
+                container.Add(new HelpBox(validationResult, HelpBoxMessageType.Warning));
+
+            validationResult = Utilities.CheckIfGoogleExternalDependencyManagerPresent();
+            if (!string.IsNullOrEmpty(validationResult))
+            {
+                var box = new Box();
+
+                box.Add(new HelpBox(validationResult, HelpBoxMessageType.Warning));
+                var b = new Button(() =>
+                {
+
+                    Utilities.EDM4UDisableAutoResolving();
+                    Utilities.EDM4UDeleteResolveLibraries();
+                    EditorUtility.RequestScriptReload();
+                })
+                {
+                    text = "Attempt to disable External Dependency Manager",
+                };
+                b.style.flexShrink = 1;
+                b.style.flexGrow = 0;
+                box.Add(b);
+                container.Add(box);
+            }
+
             container.Add(new Label("<size=15px><b>General</b><br>") { enableRichText = true });
             m_EnableDependencyResolver = new Toggle("Enable Dependency Resolver:")
             {
@@ -184,9 +208,7 @@ namespace Unity.Android.DependencyResolver
             };
             m_EnableDependencyResolver.RegisterCallback<ChangeEvent<bool>>((e) =>
             {
-                ResolverSettings.Enabled = e.newValue;
-                m_Dependencies.SetEnabled(ResolverSettings.Enabled);
-                m_Locations.SetEnabled(ResolverSettings.Enabled);
+                SetDependencyResolverStatus(e.newValue);
                 if (ResolverSettings.Enabled)
                     CollectDependencies();
             });
@@ -248,10 +270,6 @@ namespace Unity.Android.DependencyResolver
       
         public void GUI()
         {
-            var validationResult = Utilities.CheckIfTemplatesAreDisabled();
-            if (!string.IsNullOrEmpty(validationResult))
-                EditorGUILayout.HelpBox(validationResult, MessageType.Warning);
-
             // Automatically collect dependencies if assets were updated
             if (ResolverSettings.Enabled && m_AssetUpdated > m_DependenciesCollected)
             {
