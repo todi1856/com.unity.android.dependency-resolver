@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using System.Linq;
+using Unity.Android.Gradle;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -72,6 +73,29 @@ namespace Unity.Android.DependencyResolver
                     var l = new GradleDependencyLabel();
                     l.style.marginLeft = 5.0f;
                     l.style.marginTop = 5.0f;
+                    l.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
+                    {
+                        evt.menu.AppendAction("Copy Dependency",  (x) => {
+                            GUIUtility.systemCopyBuffer = ((GradleDependencyLabel)x.userData).Target.Value;
+                        }, DropdownMenuAction.AlwaysEnabled, l);
+
+                        evt.menu.AppendAction("Open Dependency in Web Browser", (x) => {
+                            var label = ((GradleDependencyLabel)x.userData).Target;
+                            var repo = label.Repository;
+                            if (repo != null)
+                            {
+                                var url = $"{repo.Value}/web/index.html#{label.Value}";
+                                Application.OpenURL(url);
+                            }
+                        }, DropdownMenuAction.AlwaysEnabled, l);
+
+                        evt.menu.AppendAction("Copy Repository", (x) => {
+                            var repo = ((GradleDependencyLabel)x.userData).Target.Repository;
+                            if (repo != null)
+                                GUIUtility.systemCopyBuffer = repo.Value;
+                        }, DropdownMenuAction.AlwaysEnabled, l);
+
+                    }));
                     return l;
                 };
 
@@ -126,10 +150,19 @@ namespace Unity.Android.DependencyResolver
                     EditorGUIUtility.PingObject(AssetDatabase.LoadAssetAtPath<UnityEngine.Object>(label.text));
                 });
 
+                l.AddManipulator(new ContextualMenuManipulator((ContextualMenuPopulateEvent evt) =>
+                {
+                    evt.menu.AppendAction("Show In Explorer", (x) => {
+                        EditorUtility.RevealInFinder(((Label)l).text);
+                    }, DropdownMenuAction.AlwaysEnabled, l);
+
+                }));
+
                 l.style.marginLeft = 5.0f;
                 l.style.marginTop = 5.0f;
                 return l;
             };
+
             multiColumnListView.columns[0].bindCell = (element, index) => ((Label)element).text = ((string[]) multiColumnListView.itemsSource)[index];
 
             multiColumnListView.RefreshItems();
