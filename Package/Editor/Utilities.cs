@@ -39,11 +39,20 @@ namespace Unity.Android.DependencyResolver
 
         internal static string CheckIfGoogleExternalDependencyManagerPresent()
         {
-            var assembly = Assembly.Load("Google.JarResolver");
-            if (assembly == null)
+            Assembly jarAssembly = null;
+            var loadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+            foreach (var a in loadedAssemblies)
+            {
+                if (a.FullName.Contains("Google.JarResolver"))
+                {
+                    jarAssembly = a;
+                    break;
+                }
+            }
+            if (jarAssembly == null)
                 return string.Empty;
 
-            var location = assembly.Location;
+            var location = jarAssembly.Location;
             var root = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
             if (location.Contains(root))
                 location = location.Substring(root.Length + 1);
