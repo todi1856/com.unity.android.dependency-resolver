@@ -40,6 +40,8 @@ namespace Unity.Android.DependencyResolver
         private ResolverResult m_Result;
         private MultiColumnListView m_Dependencies;
         private MultiColumnListView m_Locations;
+        private Toggle m_EnableDependencyResolver;
+        private Button m_RefreshDependencies;
         private static DateTime m_AssetUpdated;
         private static DateTime m_DependenciesCollected;
 
@@ -68,19 +70,21 @@ namespace Unity.Android.DependencyResolver
                 c.makeCell = () =>
                 {
                     var l = new GradleDependencyLabel();
-                    l.RegisterCallback<ClickEvent>((e) =>
-                    {
-                        if (l.Target == null)
-                            return;
-                        m_Locations.columns[0].title = $"<b>Source location for '{l.Target.Value}'</b>";
-                        m_Locations.itemsSource = l.Target.SourceLocations.ToArray();
-                        m_Locations.RefreshItems();
-                    });
-
                     l.style.marginLeft = 5.0f;
                     l.style.marginTop = 5.0f;
                     return l;
                 };
+
+            multiColumnListView.selectionChanged += objects =>
+            {
+                var label = (GradleDependency)objects.FirstOrDefault();
+                if (label != null)
+                {
+                    m_Locations.columns[0].title = $"<b>Source location for '{label.Value}'</b>";
+                    m_Locations.itemsSource = label.SourceLocations.ToArray();
+                    m_Locations.RefreshItems();
+                }
+            };
 
             Action<VisualElement, int> BindCell(int column)
             {
@@ -140,6 +144,28 @@ namespace Unity.Android.DependencyResolver
             rootVisualElement.Add(container);
 
             container.Add(new Label("<size=20px><b>Dependency Resolver</b><br>") { enableRichText = true });
+            container.Add(new Label("<size=15px><b>General</b><br>") { enableRichText = true });
+            m_EnableDependencyResolver = new Toggle("Enable Dependency Resolver:")
+            {
+                value = ResolverSettings.Enabled
+            };
+            m_EnableDependencyResolver.RegisterCallback<ChangeEvent<bool>>((e) =>
+            {
+                ResolverSettings.Enabled = e.newValue;
+                m_Dependencies.SetEnabled(ResolverSettings.Enabled);
+                m_Locations.SetEnabled(ResolverSettings.Enabled);
+                if (ResolverSettings.Enabled)
+                    CollectDependencies();
+            });
+            container.Add(m_EnableDependencyResolver);
+
+            container.Add(new Label("<br><size=15px><b>Diagnostics</b><br>") { enableRichText = true });
+
+            m_RefreshDependencies = new Button(CollectDependencies)
+            {
+                text = "Refresh Dependencies"
+            };
+            container.Add(m_RefreshDependencies);
             container.Add(new IMGUIContainer(GUI));
 
             m_Dependencies = CreateDependencyView((GradleDependency dependency, int column) =>
@@ -162,8 +188,15 @@ namespace Unity.Android.DependencyResolver
                 CollectDependencies();
             }
 
-            m_Dependencies.SetEnabled(ResolverSettings.Enabled);
-            m_Locations.SetEnabled(ResolverSettings.Enabled);
+            SetDependencyResolverStatus(ResolverSettings.Enabled);
+        }
+
+        private void SetDependencyResolverStatus(bool enabled)
+        {
+            ResolverSettings.Enabled = enabled;
+            m_Dependencies.SetEnabled(enabled);
+            m_Locations.SetEnabled(enabled);
+            m_RefreshDependencies.SetEnabled(enabled);
         }
 
         private void UpdateData()
@@ -185,31 +218,6 @@ namespace Unity.Android.DependencyResolver
             var validationResult = Utilities.CheckIfTemplatesAreDisabled();
             if (!string.IsNullOrEmpty(validationResult))
                 EditorGUILayout.HelpBox(validationResult, MessageType.Warning);
-
-            EditorGUILayout.LabelField("General", EditorStyles.boldLabel);
-            GUILayout.BeginHorizontal(GUILayout.Width(Screen.width));
-            EditorGUILayout.LabelField("Enable Dependency Resolver:");
-            EditorGUI.BeginChangeCheck();
-            ResolverSettings.Enabled = GUILayout.Toggle(ResolverSettings.Enabled, GUIContent.none);
-            if (EditorGUI.EndChangeCheck())
-            {
-                m_Dependencies.SetEnabled(ResolverSettings.Enabled);
-                m_Locations.SetEnabled(ResolverSettings.Enabled);
-                if (ResolverSettings.Enabled)
-                    CollectDependencies();
-            }
-            GUILayout.EndHorizontal();
-
-            EditorGUILayout.Space();
-            EditorGUI.BeginDisabledGroup(!ResolverSettings.Enabled);
-            EditorGUILayout.LabelField("Diagnostics", EditorStyles.boldLabel);
-            if (GUILayout.Button("Refresh Dependencies", GUILayout.ExpandWidth(false)))
-            {
-                CollectDependencies();
-            }
-
-            EditorGUILayout.Space();
-            EditorGUI.EndDisabledGroup();
 
             // Automatically collect dependencies if assets were updated
             if (ResolverSettings.Enabled && m_AssetUpdated > m_DependenciesCollected)
