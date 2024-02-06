@@ -1,0 +1,61 @@
+apply plugin: 'com.android.library'
+apply from: '../shared/keepUnitySymbols.gradle'
+**APPLY_PLUGINS**
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+// Android Resolver Dependencies Start
+    implementation 'com.google.android.gms:play-services-ads:22.6.0' // Assets/GoogleMobileAds/Editor/GoogleMobileAdsDependencies.xml:7
+    implementation 'com.google.android.ump:user-messaging-platform:2.1.0' // Assets/GoogleMobileAds/Editor/GoogleUmpDependencies.xml:7
+// Android Resolver Dependencies End
+**DEPS**}
+
+// Android Resolver Exclusions Start
+android {
+  packagingOptions {
+      exclude ('/lib/arm64-v8a/*' + '*')
+      exclude ('/lib/armeabi/*' + '*')
+      exclude ('/lib/mips/*' + '*')
+      exclude ('/lib/mips64/*' + '*')
+      exclude ('/lib/x86/*' + '*')
+      exclude ('/lib/x86_64/*' + '*')
+  }
+}
+// Android Resolver Exclusions End
+android {
+    ndkPath "**NDKPATH**"
+    namespace "com.unity3d.player"
+
+    compileSdkVersion **APIVERSION**
+    buildToolsVersion '**BUILDTOOLS**'
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    defaultConfig {
+        minSdkVersion **MINSDKVERSION**
+        targetSdkVersion **TARGETSDKVERSION**
+        ndk {
+            abiFilters **ABIFILTERS**
+            debugSymbolLevel **DEBUGSYMBOLLEVEL**
+        }
+        versionCode **VERSIONCODE**
+        versionName '**VERSIONNAME**'
+        consumerProguardFiles 'proguard-unity.txt'**USER_PROGUARD**
+**DEFAULT_CONFIG_SETUP**
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    aaptOptions {
+        noCompress = **BUILTIN_NOCOMPRESS** + unityStreamingAssets.tokenize(', ')
+        ignoreAssetsPattern = "!.svn:!.git:!.ds_store:!*.scc:!CVS:!thumbs.db:!picasa.ini:!*~"
+    }**PACKAGING_OPTIONS**
+}
+**IL_CPP_BUILD_SETUP**
+**SOURCE_BUILD_SETUP**
+**EXTERNAL_SOURCES**
