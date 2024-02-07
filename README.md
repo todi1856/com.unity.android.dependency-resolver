@@ -10,7 +10,7 @@
 ## Installation
 
 * Go to Window->Package Manager
-* In top left corner click + button, Install Package from git URL
+* In top left corner click **+** button, choose **Install Package from git URL**
 * Enter
 
 ```
