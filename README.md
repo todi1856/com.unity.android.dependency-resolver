@@ -7,6 +7,18 @@
 
 * Unity 2023.3 or higher
 
+## Installation
+
+* Go to Window->Package Manager
+* In top left corner click **+** button, choose **Install Package from git URL**
+* Enter
+
+```
+    https://github.com/todi1856/com.unity.android.dependency-resolver.git?path=/Package
+```
+
+* That's it, check Edit->Project Settings->Android->Dependency Resolver
+
 ## Overview
 
 Dependency Resolver (**UADR**) provides the same functionality as [Google's External Dependency Manager](https://github.com/googlesamples/unity-jar-resolver) (**EDM4U**), but does that through [Configuration Manager](https://docs.unity3d.com/2023.3/Documentation/Manual/android-modify-gradle-project-files-agp.html).
