@@ -14,10 +14,12 @@ namespace Tests
         protected const string RootDirectoryForTests = "UDM";
         protected const string kAssetsPath = "Assets";
         protected const string kAssetsTempPath = "Assets/Temp";
+        
         protected const string kPluginsPath = "Plugins";
         protected const string kStreamingAssetsPath = "StreamingAssets";
         protected static readonly string m_PluginsAndroidPath = $"{kPluginsPath}/Android";
         protected const string kPackage = "Packages/com.unity.mycustompackage";
+        protected readonly string kPackageTempPath = $"{kPackage}/Tests/Temp";
         protected string UnityProjectPath => Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
         protected string Splitter => new string('=', 300);
 
@@ -53,6 +55,7 @@ namespace Tests
         public void SetUpCheck()
         {
             DeleteAsset(kAssetsTempPath);
+            DeleteAsset(kPackageTempPath);
             Console.WriteLine(Splitter);
             Console.WriteLine($"Started test '{TestContext.CurrentContext.Test.FullName}'");
             Console.WriteLine(Splitter);
