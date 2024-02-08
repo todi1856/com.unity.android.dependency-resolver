@@ -85,23 +85,21 @@ namespace Tests
             CreateAssetWithTextContent(kPackageTempPath, "dependencies.xml", CreateDummyXmlContents(DummyDependency, DummyRepository));
             AssetDatabase.Refresh();
 
-            /*
-            var location = BuildProject("DepsInAssets");
+            var location = BuildProject("DepsInPackage");
             var ulGradle = GetUnityLibraryBuildGradle(location);
             var sGradle = GetSettingsGradle(location);
 
             StringAssert.Contains(DummyDependencyInGradle, ulGradle);
             StringAssert.Contains(DummyRepositoryInGradle, sGradle);
 
-            DeleteAsset(kAssetsTempPath);
+            DeleteAsset(kPackageTempPath);
 
-            location = BuildProject("DepsInAssets");
+            location = BuildProject("DepsInPackage");
             ulGradle = GetUnityLibraryBuildGradle(location);
             sGradle = GetSettingsGradle(location);
 
             StringAssert.DoesNotContain(DummyDependencyInGradle, ulGradle);
             StringAssert.DoesNotContain(DummyRepositoryInGradle, sGradle);
-            */
         }
     }
 }
