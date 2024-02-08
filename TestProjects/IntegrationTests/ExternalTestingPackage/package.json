@@ -1,0 +1,7 @@
+{
+  "displayName": "External Testing Package",
+  "name": "test.package",
+  "version": "0.0.1",
+  "dependencies": {
+  }
+}
