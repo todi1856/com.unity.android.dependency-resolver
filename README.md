@@ -34,7 +34,7 @@ Starting Unity 2023.3, it's recommended to use **Configuration Manager** for gra
 
 Also, downloading dependencies into Assets/Plugins/Android folder creates dependency conflicts if GameActivity is enabled as application entry point.
 
-Due reasons above, **EDM4U** might not work for your case, especially if you're targeting GameActivity.
+Due reasons above, **EDM4U** might not work for your case, especially if you're targeting GameActivity..
 
 
 ## Settings
