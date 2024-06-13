@@ -106,7 +106,7 @@ namespace Unity.Android.DependencyResolver
             var gradleRepositories = projectFiles.GradleSettings.DependencyResolutionManagement.Repositories;
             foreach (var repository in data.Repositories)
             {
-                var block = new Block(Repositories.Maven);
+                var block = new Block("maven");
                 gradleRepositories.AddElement(block);
                 block.AddElement(new Element($"url \"{repository}\""));
                 // TALK TO RYTIS

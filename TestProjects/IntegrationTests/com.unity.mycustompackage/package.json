@@ -1,0 +1,7 @@
+{
+  "displayName": "External Testing Package",
+  "name": "com.unity.mycustompackage",
+  "version": "0.0.1",
+  "dependencies": {
+  }
+}
