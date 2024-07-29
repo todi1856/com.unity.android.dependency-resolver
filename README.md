@@ -21,7 +21,7 @@
 
 ## Overview
 
-Dependency Resolver (**UADR**) provides the same functionality as [Google's External Dependency Manager](https://github.com/googlesamples/unity-jar-resolver) (**EDM4U**), but does that through [Configuration Manager](https://docs.unity3d.com/Documentation/Manual/android-modify-gradle-project-files-agp.html).
+Dependency Resolver (**UADR**) provides the same functionality as [Google's External Dependency Manager](https://github.com/googlesamples/unity-jar-resolver) (**EDM4U**), but does that through [Configuration Manager](https://docs.unity3d.com/6000.0/Documentation/Manual/android-modify-gradle-project-files-agp.html).
 
 How gradle dependencies are resolved:
 
