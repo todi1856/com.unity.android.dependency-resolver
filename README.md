@@ -30,7 +30,7 @@ How gradle dependencies are resolved:
 | Resolves dependencies:<br> * If templates are disabled - downloads dependencies to Assets/Plugins/Android.<br>* If templates are enabled - injects dependencies into template scripts.<br>If there are local repository specified, creates Assets/GeneratedLocalRepo folder. | Injects dependencies into gradle files using [Configuration Manager](https://docs.unity3d.com/2023.3/Documentation/Manual/android-modify-gradle-project-files-agp.html).<br>If there are local repositories, those are created directly in gradle project. |
 
 
-Starting Unity 2023.3, it's recommended to use **Configuration Manager** for gradle project manipulation, but **Configuration Manager** cannot patch gradle files if they're patched via templates.
+Starting Unity 6, it's recommended to use **Configuration Manager** for gradle project manipulation, but **Configuration Manager** cannot patch gradle files if they're patched via templates.
 
 Also, downloading dependencies into Assets/Plugins/Android folder creates dependency conflicts if GameActivity is enabled as application entry point.
 
