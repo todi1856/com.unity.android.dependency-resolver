@@ -5,7 +5,7 @@
 
 ## Requirements
 
-* Unity 2023.3 or higher
+* Unity 6 or higher
 
 ## Installation
 
